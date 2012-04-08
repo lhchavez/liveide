@@ -38,6 +38,10 @@ function __loop() {
   return true;
 }
 
+function __nop(x, y) {
+  return y;
+}
+
 function update() {
   var src = jsparser.parse(editor.getValue());
   $('#debug').val(src);

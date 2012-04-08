@@ -27,7 +27,7 @@
 "false"				return 'FALSETOKEN'
 "finally"			return 'FINALLY'
 "for"				loopStack.push(yylineno); return 'FOR'
-"function"			return 'FUNCTION'
+"function"			loopStack.push(yylineno); return 'FUNCTION'
 "if"				return 'IF'
 "instanceof"			return 'INSTANCEOF'
 "in"				return 'INTOKEN'
@@ -136,6 +136,9 @@ function __loopend() {
 function __loop() {
 	console.log("continue;");
 	return true;
+}
+function __nop(x, y) {
+	return y;
 }
 var stack = new Stack();
 var loopStack = new Stack();
@@ -269,10 +272,10 @@ NewExprNoBF
 
 CallExpr
     : MemberExpr Arguments
-	{ stack.push(stack.get(2) + stack.get(1));
+	{ stack.push('__nop(__loopstart(), ' + stack.get(2) + stack.get(1) + ', __loopend())');
 	  stack.consume(2); }
     | CallExpr Arguments
-	{ stack.push(stack.get(2) + stack.get(1));
+	{ stack.push('__nop(__loopstart(), ' + stack.get(2) + stack.get(1) + ', __loopend())');
 	  stack.consume(2); }
     | CallExpr '[' Expr ']'
 	{ stack.push(stack.get(2) + $2 + stack.get(1) + $4);
@@ -283,10 +286,10 @@ CallExpr
 
 CallExprNoBF
     : MemberExprNoBF Arguments
-	{ stack.push(stack.get(2) + stack.get(1));
+	{ stack.push('__nop(__loopstart(), ' + stack.get(2) + stack.get(1) + ', __loopend())');
 	  stack.consume(2); }
     | CallExprNoBF Arguments
-	{ stack.push(stack.get(2) + stack.get(1));
+	{ stack.push('__nop(__loopstart(), ' + stack.get(2) + stack.get(1) + ', __loopend())');
 	  stack.consume(2); }
     | CallExprNoBF '[' Expr ']'
 	{ stack.push(stack.get(2) + $2 + stack.get(1) + $4);
@@ -848,10 +851,10 @@ IterationStatement
 	{ stack.push('__loopstart(); ' + $1 + ' ' + $2 + '__loop() && (' + stack.get(2) + ')' + $4 + stack.get(1) + ' __loopend();');
 	  stack.consume(2); }
     | FOR '(' ExprNoInOpt ';' ExprOpt ';' ExprOpt ')' Statement
-	{ stack.push('__loopstart(); __loop(); ' + $1 + " " + $2 + stack.get(4) + $4 + ' ' + stack.get(3) + $6 + " " + stack.get(2) + $8 + ' {__loop(); ' + stack.get(1) + '}');
+	{ stack.push('__loopstart(); __loop(); ' + $1 + " " + $2 + stack.get(4) + $4 + ' ' + stack.get(3) + $6 + " __nop(__loop(), " + stack.get(2) + ')' + $8 + ' {__loop(); ' + stack.get(1) + '}');
 	  stack.consume(4); }
     | FOR '(' VAR VariableDeclarationListNoIn ';' ExprOpt ';' ExprOpt ')' Statement
-	{ stack.push('__loopstart(); __loop(); ' + $1 + ' ' + $2 + $3 + ' ' + stack.get(4) + $5 + ' ' + stack.get(3) + $7 + ' __loop(), (function() { ' + stack.get(2) + '})()' + $9 + ' ' + stack.get(1) + ' __loopend();');
+	{ stack.push('__loopstart(); __loop(); ' + $1 + ' ' + $2 + $3 + ' ' + stack.get(4) + $5 + ' ' + stack.get(3) + $7 + ' __nop(__loop(), ' + stack.get(2) + ') ' + $9 + ' ' + stack.get(1) + ' __loopend();');
 	  stack.consume(4); }
     | FOR '(' LeftHandSideExpr INTOKEN Expr ')' Statement
 	{ stack.push('__loopstart(); ' + $1 + ' ' + $2 + ' ' + stack.get(3) + ' ' + $4 + ' ' + stack.get(2) + $6 + ' {__loop(); __change(\'' + stack.get(3) + '\', ' + stack.get(3) + ', ' + loopStack.pop() + '); ' + stack.get(1) + '} __loopend();');
@@ -978,10 +981,14 @@ DebuggerStatement
 
 FunctionDeclaration
     : FUNCTION IDENT '(' ')' OPENBRACE FunctionBody CLOSEBRACE
-	{ stack.push($1 + ' ' + $2 + ' ' + $3 + $4 + ' ' + $5 + ' ' + stack.pop() + ' ' + $7); }
+	{ stack.push($1 + ' ' + $2 + ' ' + $3 + $4 + ' ' + $5 + '__loop(); ' + stack.pop() + ' ' + $7);
+	  loopStack.pop(); }
     | FUNCTION IDENT '(' FormalParameterList ')' OPENBRACE FunctionBody CLOSEBRACE
-	{ stack.push($1 + ' ' + $2 + ' ' + $3 + stack.get(2) + $5 + ' ' + $6 + ' ' + stack.get(1) + ' ' + $8);
-	  stack.consume(2); }
+	{ stack.push($1 + ' ' + $2 + ' ' + $3 + stack.get(2) + $5 + ' ' + $6 + '__loop(); ' + stack.get(2).split(',').map(function (f) {
+		return '__change(\'' + f + '\', ' + f + ', ' + loopStack.get(1) + ');';
+	  }).join(' ') + ' ' + stack.get(1) + ' ' + $8);
+	  stack.consume(2);
+	  loopStack.pop(); }
     ;
 
 FunctionExpr
