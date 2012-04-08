@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+        <head>
+                <title>Live IDE</title>
+                <link rel="stylesheet" href="style.css" type="style/css" />
+                <script src="jsparser.js" type="text/javascript"></script>
+                <script src="jquery.js" type="text/javascript"></script>
+                <script src="script.js" type="text/javascript"></script>
+        </head>
+        <body>
+                <textarea id="source">var items = [1, 2, 4, 6, 8, 10];
+var value = 9;
+
+var startIndex = 0,
+    stopIndex  = items.length - 1,
+    middle     = Math.floor((stopIndex + startIndex)/2);
+
+while (items[middle] != value &amp;&amp; startIndex &lt; stopIndex){
+    // adjust search area
+    if (value &lt; items[middle]){
+        stopIndex = middle - 1;
+    } else if (value &gt; items[middle]){
+        startIndex = middle + 1;
+    }
+ 
+    // recalculate middle
+    middle = Math.floor((stopIndex + startIndex)/2);
+}
+
+// make sure it's the right value
+var result = (items[middle] != value) ? -1 : middle;</textarea><table id="code"><tbody></tbody></table>
+                <textarea id="debug"></textarea>
+                <textarea id="debug2"></textarea>
+        </body>
+</html>
