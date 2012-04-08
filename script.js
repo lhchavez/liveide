@@ -1,8 +1,15 @@
 var editor;
+var nesting;
+var loopdepth;
+var loopstack;
 
 function __clear() {
   $('#debug2').val("");
   $('#code tbody tr').remove();
+
+  nesting = 0;
+  loopdepth = 0;
+  loopstack = [];
 }
 
 function __update(name, val, line) {
@@ -10,7 +17,12 @@ function __update(name, val, line) {
   for (var i = len; i <= line; i++) {
     $('#code tbody').append($('<tr></tr>'));
   }
-  $($('#code tbody tr')[line]).append($('<td>' + name + ' = ' + JSON.stringify(val) + '</td>'));
+  var row = $($('#code tbody tr')[line]);
+  len = row.find('td').length;
+  for (var i = len; i <= Math.max(0, nesting + loopdepth); i++) {
+    row.append($('<td></td>'));
+  }
+  $(row.find('td')[Math.max(0, nesting + loopdepth)]).append($('<div>' + name + ' = ' + JSON.stringify(val) + '</div>'));
 }
 
 function __postchange(name, val, inc, line) {
@@ -26,14 +38,21 @@ function __change(name, val, line) {
 }
 
 function __loopstart() {
+  if (nesting > 100) throw 'Stack overflow';
+  nesting++;
+  loopstack.push(loopdepth);
+  loopdepth = -2;
   $('#debug2').val($('#debug2').val() + '\n' + "{");
 }
 
 function __loopend() {
+  nesting--;
+  loopdepth = loopstack.pop();
   $('#debug2').val($('#debug2').val() + '\n' + "}");
 }
 
 function __loop() {
+  loopdepth++;
   $('#debug2').val($('#debug2').val() + '\n' + "continue;");
   return true;
 }
