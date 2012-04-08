@@ -38,10 +38,10 @@ function __change(name, val, line) {
 }
 
 function __loopstart() {
-  if (nesting > 100) throw 'Stack overflow';
+  if (nesting == 100) throw 'Stack overflow';
   nesting++;
   loopstack.push(loopdepth);
-  loopdepth = -2;
+  loopdepth -= 2;
   $('#debug2').val($('#debug2').val() + '\n' + "{");
 }
 
