@@ -1,2 +1,15 @@
-textarea { min-height: 200px; min-width: 400px; }
-table { font-family: monospace; }
+textarea { width: 400px; height: 200px; font-family: Consolas, monospace; }
+
+table { font-family: Consolas, monospace; border-collapse: collapse; position: relative; top:5px; }
+
+.clear { clear: both; }
+.CodeMirror { float: left; width: 600px; font-size: 14px; }
+.CodeMirror-scroll { height: auto; overflow: visible; }
+
+
+tr { height: 14px; font-size: 14px; }
+td { height: 14px; line-height:10px; padding: 0 5px; }
+td:not(:first-child) { border-left: 1px solid black; }
+
+.CodeMirror-lines pre:not(.CodeMirror-cursor):hover, tr:hover, .hover { background: PaleTurquoise !important; }
+
