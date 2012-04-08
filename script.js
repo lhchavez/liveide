@@ -38,7 +38,7 @@ function __loop() {
   return true;
 }
 
-function __nop(x, y) {
+function __nop(x, y, z) {
   return y;
 }
 

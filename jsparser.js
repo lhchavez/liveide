@@ -594,11 +594,11 @@ function anonymous(yytext, yyleng, yylineno, yy, yystate, $$, _$) {
         stack.consume(2);
         break;
       case 245:
-        stack.push("__loopstart(); __loop(); " + $$[$0 - 8] + " " + $$[$0 - 7] + stack.get(4) + $$[$0 - 5] + " " + stack.get(3) + $$[$0 - 3] + " __nop(__loop(), " + stack.get(2) + ")" + $$[$0 - 1] + " {__loop(); " + stack.get(1) + "}");
+        stack.push("__loopstart(); __loop(); " + $$[$0 - 8] + " " + $$[$0 - 7] + stack.get(4) + $$[$0 - 5] + " " + stack.get(3) + $$[$0 - 3] + " (function() { __loop();  " + stack.get(2) + "})()" + $$[$0 - 1] + " {__loop(); " + stack.get(1) + "}");
         stack.consume(4);
         break;
       case 246:
-        stack.push("__loopstart(); __loop(); " + $$[$0 - 9] + " " + $$[$0 - 8] + $$[$0 - 7] + " " + stack.get(4) + $$[$0 - 5] + " " + stack.get(3) + $$[$0 - 3] + " __nop(__loop(), " + stack.get(2) + ") " + $$[$0 - 1] + " " + stack.get(1) + " __loopend();");
+        stack.push("__loopstart(); __loop(); " + $$[$0 - 9] + " " + $$[$0 - 8] + $$[$0 - 7] + " " + stack.get(4) + $$[$0 - 5] + " " + stack.get(3) + $$[$0 - 3] + " (function() { __loop(); " + stack.get(2) + "})() " + $$[$0 - 1] + " " + stack.get(1) + " __loopend();");
         stack.consume(4);
         break;
       case 247:
@@ -694,11 +694,33 @@ function anonymous(yytext, yyleng, yylineno, yy, yystate, $$, _$) {
         stack.push($$[$0 - 1] + $$[$0]);
         break;
       case 286:
-        stack.push($$[$0 - 6] + " " + $$[$0 - 5] + " " + $$[$0 - 4] + $$[$0 - 3] + " " + $$[$0 - 2] + "__loop(); " + stack.pop() + " " + $$[$0]);
+        stack.push($$[$0 - 6] + " " + $$[$0 - 5] + $$[$0 - 4] + $$[$0 - 3] + " " + $$[$0 - 2] + "__loop(); " + stack.pop() + " " + $$[$0]);
         loopStack.pop();
         break;
       case 287:
-        stack.push($$[$0 - 7] + " " + $$[$0 - 6] + " " + $$[$0 - 5] + stack.get(2) + $$[$0 - 3] + " " + $$[$0 - 2] + "__loop(); " + stack.get(2).split(",").map(function (f) {
+        stack.push($$[$0 - 7] + " " + $$[$0 - 6] + $$[$0 - 5] + stack.get(2) + $$[$0 - 3] + " " + $$[$0 - 2] + "__loop(); " + stack.get(2).split(",").map(function (f) {
+            return "__change('" + f + "', " + f + ", " + loopStack.get(1) + ");";
+        }).join(" ") + " " + stack.get(1) + " " + $$[$0]);
+        stack.consume(2);
+        loopStack.pop();
+        break;
+      case 288:
+        stack.push($$[$0 - 5] + $$[$0 - 4] + $$[$0 - 3] + " " + $$[$0 - 2] + " __loop(); " + stack.pop() + " " + $$[$0]);
+        loopStack.pop();
+        break;
+      case 289:
+        stack.push($$[$0 - 6] + $$[$0 - 5] + stack.get(2) + $$[$0 - 3] + " " + $$[$0 - 2] + "__loop(); " + stack.get(2).split(",").map(function (f) {
+            return "__change('" + f + "', " + f + ", " + loopStack.get(1) + ");";
+        }).join(" ") + " " + stack.get(1) + " " + $$[$0]);
+        stack.consume(2);
+        loopStack.pop();
+        break;
+      case 290:
+        stack.push($$[$0 - 6] + " " + $$[$0 - 5] + $$[$0 - 4] + $$[$0 - 3] + " " + $$[$0 - 2] + "__loop(); " + stack.pop() + " " + $$[$0]);
+        loopStack.pop();
+        break;
+      case 291:
+        stack.push($$[$0 - 7] + " " + $$[$0 - 6] + $$[$0 - 5] + stack.get(2) + $$[$0 - 3] + " " + $$[$0 - 2] + "__loop(); " + stack.get(2).split(",").map(function (f) {
             return "__change('" + f + "', " + f + ", " + loopStack.get(1) + ");";
         }).join(" ") + " " + stack.get(1) + " " + $$[$0]);
         stack.consume(2);
@@ -897,7 +919,7 @@ function __loop() {
 	console.log("continue;");
 	return true;
 }
-function __nop(x, y) {
+function __nop(x, y, z) {
 	return y;
 }
 var stack = new Stack();

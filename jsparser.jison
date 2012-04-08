@@ -137,7 +137,7 @@ function __loop() {
 	console.log("continue;");
 	return true;
 }
-function __nop(x, y) {
+function __nop(x, y, z) {
 	return y;
 }
 var stack = new Stack();
@@ -851,10 +851,10 @@ IterationStatement
 	{ stack.push('__loopstart(); ' + $1 + ' ' + $2 + '__loop() && (' + stack.get(2) + ')' + $4 + stack.get(1) + ' __loopend();');
 	  stack.consume(2); }
     | FOR '(' ExprNoInOpt ';' ExprOpt ';' ExprOpt ')' Statement
-	{ stack.push('__loopstart(); __loop(); ' + $1 + " " + $2 + stack.get(4) + $4 + ' ' + stack.get(3) + $6 + " __nop(__loop(), " + stack.get(2) + ')' + $8 + ' {__loop(); ' + stack.get(1) + '}');
+	{ stack.push('__loopstart(); __loop(); ' + $1 + " " + $2 + stack.get(4) + $4 + ' ' + stack.get(3) + $6 + " (function() { __loop();  " + stack.get(2) + '})()' + $8 + ' {__loop(); ' + stack.get(1) + '}');
 	  stack.consume(4); }
     | FOR '(' VAR VariableDeclarationListNoIn ';' ExprOpt ';' ExprOpt ')' Statement
-	{ stack.push('__loopstart(); __loop(); ' + $1 + ' ' + $2 + $3 + ' ' + stack.get(4) + $5 + ' ' + stack.get(3) + $7 + ' __nop(__loop(), ' + stack.get(2) + ') ' + $9 + ' ' + stack.get(1) + ' __loopend();');
+	{ stack.push('__loopstart(); __loop(); ' + $1 + ' ' + $2 + $3 + ' ' + stack.get(4) + $5 + ' ' + stack.get(3) + $7 + ' (function() { __loop(); ' + stack.get(2) + '})() ' + $9 + ' ' + stack.get(1) + ' __loopend();');
 	  stack.consume(4); }
     | FOR '(' LeftHandSideExpr INTOKEN Expr ')' Statement
 	{ stack.push('__loopstart(); ' + $1 + ' ' + $2 + ' ' + stack.get(3) + ' ' + $4 + ' ' + stack.get(2) + $6 + ' {__loop(); __change(\'' + stack.get(3) + '\', ' + stack.get(3) + ', ' + loopStack.pop() + '); ' + stack.get(1) + '} __loopend();');
@@ -981,10 +981,10 @@ DebuggerStatement
 
 FunctionDeclaration
     : FUNCTION IDENT '(' ')' OPENBRACE FunctionBody CLOSEBRACE
-	{ stack.push($1 + ' ' + $2 + ' ' + $3 + $4 + ' ' + $5 + '__loop(); ' + stack.pop() + ' ' + $7);
+	{ stack.push($1 + ' ' + $2 + $3 + $4 + ' ' + $5 + '__loop(); ' + stack.pop() + ' ' + $7);
 	  loopStack.pop(); }
     | FUNCTION IDENT '(' FormalParameterList ')' OPENBRACE FunctionBody CLOSEBRACE
-	{ stack.push($1 + ' ' + $2 + ' ' + $3 + stack.get(2) + $5 + ' ' + $6 + '__loop(); ' + stack.get(2).split(',').map(function (f) {
+	{ stack.push($1 + ' ' + $2 + $3 + stack.get(2) + $5 + ' ' + $6 + '__loop(); ' + stack.get(2).split(',').map(function (f) {
 		return '__change(\'' + f + '\', ' + f + ', ' + loopStack.get(1) + ');';
 	  }).join(' ') + ' ' + stack.get(1) + ' ' + $8);
 	  stack.consume(2);
@@ -993,9 +993,23 @@ FunctionDeclaration
 
 FunctionExpr
     : FUNCTION '(' ')' OPENBRACE FunctionBody CLOSEBRACE
+	{ stack.push($1 + $2 + $3 + ' ' + $4 + ' __loop(); ' + stack.pop() + ' ' + $6);
+	  loopStack.pop(); }
     | FUNCTION '(' FormalParameterList ')' OPENBRACE FunctionBody CLOSEBRACE
+	{ stack.push($1 +  $2 + stack.get(2) + $4 + ' ' + $5 + '__loop(); ' + stack.get(2).split(',').map(function (f) {
+		return '__change(\'' + f + '\', ' + f + ', ' + loopStack.get(1) + ');';
+	  }).join(' ') + ' ' + stack.get(1) + ' ' + $7);
+	  stack.consume(2);
+	  loopStack.pop(); }
     | FUNCTION IDENT '(' ')' OPENBRACE FunctionBody CLOSEBRACE
+	{ stack.push($1 + ' ' + $2 + $3 + $4 + ' ' + $5 + '__loop(); ' + stack.pop() + ' ' + $7);
+	  loopStack.pop(); }
     | FUNCTION IDENT '(' FormalParameterList ')' OPENBRACE FunctionBody CLOSEBRACE
+	{ stack.push($1 + ' ' + $2 + $3 + stack.get(2) + $5 + ' ' + $6 + '__loop(); ' + stack.get(2).split(',').map(function (f) {
+		return '__change(\'' + f + '\', ' + f + ', ' + loopStack.get(1) + ');';
+	  }).join(' ') + ' ' + stack.get(1) + ' ' + $8);
+	  stack.consume(2);
+	  loopStack.pop(); }
     ;
 
 FormalParameterList
