@@ -2,7 +2,11 @@ body { margin: 0; padding: 0; }
 
 textarea { width: 45%; font-family: Consolas, monospace; }
 
+a { color: #f80; text-decoration: none; }
+
 table { font-family: Consolas, monospace; border-collapse: collapse; position: relative; top:5px; }
+
+#header { font-family: Consolas, monospace; height: 1em; width: 100%; background: #444; text-align: right; padding: 3px 0;}
 
 .clear { clear: both; }
 .CodeMirror { float: left; width: 45%; font-size: 14px; font-family: Consolas, monospace; }
