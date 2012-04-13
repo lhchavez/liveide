@@ -2,6 +2,7 @@ var editor;
 var nesting;
 var loopdepth;
 var loopstack;
+var loopcount;
 
 function __clear() {
   $('#debug2').val("");
@@ -9,6 +10,7 @@ function __clear() {
 
   nesting = 0;
   loopdepth = 0;
+  loopcount = 0;
   loopstack = [];
 }
 
@@ -38,8 +40,9 @@ function __change(name, val, line) {
 }
 
 function __loopstart() {
-  if (nesting == 100) throw 'Stack overflow';
+  if (nesting == 100 || loopcount == 100) throw 'Stack overflow';
   nesting++;
+  loopcount++;
   loopstack.push(loopdepth);
   loopdepth -= 2;
   $('#debug2').val($('#debug2').val() + '\n' + "{");
